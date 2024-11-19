@@ -1,5 +1,5 @@
 # Utilice un entorno de ejecución oficial de Node.js como imagen principal
-FROM node:14 
+FROM node:18
 
 # Establezca el directorio de trabajo en el contenedor
  WORKDIR /usr/src/app 
