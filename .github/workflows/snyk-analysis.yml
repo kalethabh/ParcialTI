@@ -1,0 +1,51 @@
+name: Dockerfile Vulnerability Scanning
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  snyk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup Snyk
+        uses: snyk/actions/setup@v2
+        with:
+          version: 'latest'
+      
+      - name: Auth Snyk
+        run: snyk auth ${{ secrets.SNYK_TOKEN }}
+
+      - name: Test Dockerfile
+        run: snyk container test --file=Dockerfile
+      
+      - name: Monitor Dockerfile
+        run: snyk monitor --file=Dockerfile
+
+  codeql:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    strategy:
+      matrix:
+        language: [javascript, python]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: ${{ matrix.language }}
+      
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
